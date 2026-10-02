@@ -3,8 +3,11 @@ package com.projects.buildora.controller;
 import com.projects.buildora.Service.ProjectMemberService;
 import com.projects.buildora.dto.member.InviteMemberRequest;
 import com.projects.buildora.dto.member.MemberResponse;
+import com.projects.buildora.dto.member.UpdateMemberRoleRequest;
 import com.projects.buildora.entity.ProjectMember;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +17,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects/{projectId}/members")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProjectMemberController {
 
-    private final ProjectMemberService projectMemberService;
+    ProjectMemberService projectMemberService;
 
 
 
@@ -45,7 +49,7 @@ public class ProjectMemberController {
     @PatchMapping("/{memberId}")
     public ResponseEntity<MemberResponse> updateMemberRole(
             @PathVariable Long projectId,
-            @RequestBody InviteMemberRequest request,
+            @RequestBody UpdateMemberRoleRequest request,
             @PathVariable Long memberId
     ){
         Long UserId= 1L;
@@ -54,7 +58,7 @@ public class ProjectMemberController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<MemberResponse> deleteProjectMember(
+    public ResponseEntity<MemberResponse> deleteMember(
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){

@@ -7,24 +7,24 @@ import com.projects.buildora.dto.auth.AuthResponse;
 import com.projects.buildora.dto.auth.LoginRequest;
 import com.projects.buildora.dto.auth.SignupRequest;
 import com.projects.buildora.dto.auth.UserProfileResponse;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class AuthController {
 
-    private final   AuthService authservice;
-    private final UserService userService;
+    AuthService authservice;
+    UserService userService;
 
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(SignupRequest request) {
+    public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest request) {
 
         return ResponseEntity.ok(authservice.signup(request));
 
@@ -32,7 +32,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authservice.login(request));
     }
 

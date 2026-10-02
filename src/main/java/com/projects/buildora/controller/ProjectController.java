@@ -5,7 +5,9 @@ import com.projects.buildora.dto.project.ProjectRequest;
 import com.projects.buildora.dto.project.ProjectResponse;
 import com.projects.buildora.dto.project.ProjectSummaryResponse;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/projects")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+
 public class ProjectController {
 
-    private final ProjectService projectService;
+    ProjectService projectService;
 
 
     @GetMapping
