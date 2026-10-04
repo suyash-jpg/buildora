@@ -35,10 +35,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .owner(owner)
                 .isPublic(false)
                 .build();
-
         project= projectRepository.save(project);
-
-
         return projectMapper.toProjectResponse(project);
 
     }
@@ -84,6 +81,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
+
 
     public Project getAccessibleProjectById(Long id, Long userId) {
 

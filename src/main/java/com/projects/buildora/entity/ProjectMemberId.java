@@ -1,16 +1,19 @@
 package com.projects.buildora.entity;
 
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Embeddable
 public class ProjectMemberId {
 
-    Long projected;
-    Long userid;
+    Long projectId;
+    Long userId;
+
 }

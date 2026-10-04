@@ -25,26 +25,28 @@ public class ProjectMemberController {
 
 
     @GetMapping
-    public ResponseEntity<List<ProjectMember>> getProjectMembers(@PathVariable Long projectId) {
+    public ResponseEntity<List<MemberResponse>> getProjectMembers(@PathVariable Long projectId) {
 
-        Long UserId= 1L;
+        Long userId= 1L;
 
-        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId,UserId));
+        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId,userId));
     }
 
 
     @PostMapping
-    public ResponseEntity<MemberResponse> createProjectMember(
+    public ResponseEntity<MemberResponse> inviteMember(
             @PathVariable Long projectId,
             @RequestBody InviteMemberRequest request){
 
-        Long UserId= 1L;
+        Long userId= 1L;
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                projectMemberService.inviteMember(projectId,request,UserId)
+                projectMemberService.inviteMember(projectId,request ,userId)
         );
 
     }
+
+
 
     @PatchMapping("/{memberId}")
     public ResponseEntity<MemberResponse> updateMemberRole(
