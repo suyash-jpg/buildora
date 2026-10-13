@@ -6,6 +6,7 @@ import com.projects.buildora.dto.project.ProjectResponse;
 import com.projects.buildora.dto.project.ProjectSummaryResponse;
 import com.projects.buildora.entity.Project;
 import com.projects.buildora.entity.User;
+import com.projects.buildora.error.ResourceNotFound;
 import com.projects.buildora.mapper.ProjectMapper;
 import com.projects.buildora.repository.ProjectRepository;
 import com.projects.buildora.repository.UserRepository;
@@ -85,6 +86,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     public Project getAccessibleProjectById(Long id, Long userId) {
 
-        return projectRepository.findAccessibleProjectById(id,userId).orElse(null);
+        return projectRepository.findAccessibleProjectById(id,userId).orElseThrow(()-> new ResourceNotFound("Project" ,id.toString()));
     }
 }

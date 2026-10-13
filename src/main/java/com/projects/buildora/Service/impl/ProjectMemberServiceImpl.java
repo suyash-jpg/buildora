@@ -57,7 +57,7 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
             throw new RuntimeException("Not allowed to invite member");
         }
 
-        User invitee =userRepository.findByEmail(request.email()).orElseThrow();
+        User invitee = userRepository.findByEmail(request.email()).orElseThrow();
 
         if (invitee.getId().equals(userId)) {
             throw new RuntimeException("Cannot invite your self");
@@ -84,13 +84,38 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     }
 
     @Override
-    public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId) {
-        return null;
+    public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId, Long userId) {
+        Project project = getAccessibleProjectById(projectId, userId);
+
+        if (!project.getOwner().getId().equals(userId)) {
+
+            throw new RuntimeException("Not allowed to update role");
+        }
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+
+        ProjectMember member = projectMemberRepository.findById(projectMemberId).orElseThrow();
+
+        member.setProjectRole(request.role());
+        projectMemberRepository.save(member);
+
+
+        return projectMemberMapper.toProjectMemberResponseFromMember(member);
+
     }
 
     @Override
-    public MemberResponse deleteProjectMember(Long projectId, Long memberId, Long userId) {
-        return null;
+    public void removeProjectMember(Long projectId, Long memberId, Long userId) {
+        Project project = getAccessibleProjectById(projectId, userId);
+        if (!project.getOwner().getId().equals(userId)){
+
+            throw new RuntimeException("Not allowed to delete member");
+        }
+        ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
+        if (!projectMemberRepository.existsById(projectMemberId)) {
+            throw new RuntimeException("Member not found");
+        }
+        projectMemberRepository.deleteById(projectMemberId);
     }
 
     public Project getAccessibleProjectById(Long id, Long userId) {

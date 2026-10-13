@@ -4,7 +4,7 @@ import com.projects.buildora.Service.ProjectMemberService;
 import com.projects.buildora.dto.member.InviteMemberRequest;
 import com.projects.buildora.dto.member.MemberResponse;
 import com.projects.buildora.dto.member.UpdateMemberRoleRequest;
-import com.projects.buildora.entity.ProjectMember;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,7 +36,7 @@ public class ProjectMemberController {
     @PostMapping
     public ResponseEntity<MemberResponse> inviteMember(
             @PathVariable Long projectId,
-            @RequestBody InviteMemberRequest request){
+            @RequestBody @Valid InviteMemberRequest request){
 
         Long userId= 1L;
 
@@ -51,24 +51,22 @@ public class ProjectMemberController {
     @PatchMapping("/{memberId}")
     public ResponseEntity<MemberResponse> updateMemberRole(
             @PathVariable Long projectId,
-            @RequestBody UpdateMemberRoleRequest request,
+            @RequestBody @Valid UpdateMemberRoleRequest request,
             @PathVariable Long memberId
     ){
-        Long UserId= 1L;
-        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId,request,memberId));
+        Long userId= 1L;
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId,request,memberId,userId));
 
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<MemberResponse> deleteMember(
+    public ResponseEntity<Void> removeMember(
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
-        Long UserId= 1L;
-        return ResponseEntity.ok(projectMemberService.deleteProjectMember(projectId,memberId,UserId));
+        Long userId= 1L;
+        projectMemberService.removeProjectMember(projectId,memberId,userId);
+        return ResponseEntity.noContent().build();
     }
-
-
-
 
 }
