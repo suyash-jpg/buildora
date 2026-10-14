@@ -35,29 +35,17 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
 
         Project project = getAccessibleProjectById(projectId, userId);
 
-        List<MemberResponse> memberResponsesList = new ArrayList<>();
-
-        memberResponsesList.add(projectMemberMapper.toProjectMemberResponseFromOwner(project.getOwner()));
-
-        memberResponsesList.addAll(
-                projectMemberRepository.findByIdProjectId(projectId)
+       return projectMemberRepository.findByIdProjectId(projectId)
                         .stream()
                         .map(projectMemberMapper::toProjectMemberResponseFromMember)
-                        .toList());
-
-        return memberResponsesList;
+                        .toList();
     }
 
     @Override
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
         Project project = getAccessibleProjectById(projectId, userId);
 
-        if (!project.getOwner().getId().equals(userId)) {
-
-            throw new RuntimeException("Not allowed to invite member");
-        }
-
-        User invitee = userRepository.findByEmail(request.email()).orElseThrow();
+        User invitee = userRepository.findByUsername(request.username()).orElseThrow();
 
         if (invitee.getId().equals(userId)) {
             throw new RuntimeException("Cannot invite your self");
@@ -87,11 +75,6 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId, Long userId) {
         Project project = getAccessibleProjectById(projectId, userId);
 
-        if (!project.getOwner().getId().equals(userId)) {
-
-            throw new RuntimeException("Not allowed to update role");
-        }
-
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
         ProjectMember member = projectMemberRepository.findById(projectMemberId).orElseThrow();
@@ -107,10 +90,7 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     @Override
     public void removeProjectMember(Long projectId, Long memberId, Long userId) {
         Project project = getAccessibleProjectById(projectId, userId);
-        if (!project.getOwner().getId().equals(userId)){
 
-            throw new RuntimeException("Not allowed to delete member");
-        }
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         if (!projectMemberRepository.existsById(projectMemberId)) {
             throw new RuntimeException("Member not found");

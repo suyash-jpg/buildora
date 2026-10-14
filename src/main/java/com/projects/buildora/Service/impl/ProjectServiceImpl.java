@@ -5,15 +5,21 @@ import com.projects.buildora.dto.project.ProjectRequest;
 import com.projects.buildora.dto.project.ProjectResponse;
 import com.projects.buildora.dto.project.ProjectSummaryResponse;
 import com.projects.buildora.entity.Project;
+import com.projects.buildora.entity.ProjectMember;
+import com.projects.buildora.entity.ProjectMemberId;
 import com.projects.buildora.entity.User;
+import com.projects.buildora.enums.ProjectRole;
 import com.projects.buildora.error.ResourceNotFound;
 import com.projects.buildora.mapper.ProjectMapper;
+import com.projects.buildora.mapper.ProjectMemberMapper;
+import com.projects.buildora.repository.ProjectMemberRepository;
 import com.projects.buildora.repository.ProjectRepository;
 import com.projects.buildora.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -28,15 +34,29 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectRepository projectRepository;
     UserRepository userRepository;
     ProjectMapper projectMapper;
+    ProjectMemberRepository projectMemberRepository;
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        User owner = userRepository.findById(userId).orElse(null);
+        User owner = userRepository.findById(userId).orElseThrow(() ->
+                new ResourceNotFound("User",userId.toString()));
+
         Project project =Project.builder()
                 .name(request.name())
-                .owner(owner)
                 .isPublic(false)
                 .build();
         project= projectRepository.save(project);
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), userId);
+
+        ProjectMember projectMember = ProjectMember.builder()
+                .id(projectMemberId)
+                .projectRole(ProjectRole.OWNER)
+                .user(owner)
+                .acceptedAt(Instant.now())
+                .invitedAt(Instant.now())
+                .project(project)
+                .build();
+        projectMemberRepository.save(projectMember);
         return projectMapper.toProjectResponse(project);
 
     }
@@ -74,10 +94,6 @@ public class ProjectServiceImpl implements ProjectService {
     public void softDelete(Long id, Long userId) {
 
         Project project = getAccessibleProjectById(id,userId);
-
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("You can't delete this project");
-        }
 
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
