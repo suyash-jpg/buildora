@@ -5,6 +5,7 @@ import com.projects.buildora.dto.project.ProjectRequest;
 import com.projects.buildora.dto.project.ProjectResponse;
 import com.projects.buildora.dto.project.ProjectSummaryResponse;
 
+import com.projects.buildora.security.AuthUtil;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,36 +28,31 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getAllProjects() {
-        Long userId=1L;
-
-        return ResponseEntity.ok(projectService.getUserProjects(userId));
+        return ResponseEntity.ok(projectService.getUserProjects());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
 
-        Long userId=1L;
-        return ResponseEntity.ok(projectService.getUserProjectsById(id,userId));
+        return ResponseEntity.ok(projectService.getUserProjectsById(id));
 
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody @Valid ProjectRequest request){
-        Long userId=1L;
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request,userId));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(request));
 
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long id, @RequestBody @Valid ProjectRequest request){
-        Long userId=1L;
-        return ResponseEntity.ok(projectService.updateProject(id,request,userId));
+        return ResponseEntity.ok(projectService.updateProject(id,request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id){
-        Long userId=1L;
-        projectService.softDelete(id,userId);
+        projectService.softDelete(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,4 @@
 package com.projects.buildora.Service.impl;
-
 import com.projects.buildora.Service.ProjectService;
 import com.projects.buildora.dto.project.ProjectRequest;
 import com.projects.buildora.dto.project.ProjectResponse;
@@ -11,17 +10,16 @@ import com.projects.buildora.entity.User;
 import com.projects.buildora.enums.ProjectRole;
 import com.projects.buildora.error.ResourceNotFound;
 import com.projects.buildora.mapper.ProjectMapper;
-import com.projects.buildora.mapper.ProjectMemberMapper;
 import com.projects.buildora.repository.ProjectMemberRepository;
 import com.projects.buildora.repository.ProjectRepository;
 import com.projects.buildora.repository.UserRepository;
+import com.projects.buildora.security.AuthUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -35,10 +33,18 @@ public class ProjectServiceImpl implements ProjectService {
     UserRepository userRepository;
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
+    AuthUtil authUtil;
+
     @Override
-    public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        User owner = userRepository.findById(userId).orElseThrow(() ->
-                new ResourceNotFound("User",userId.toString()));
+    public ProjectResponse createProject(ProjectRequest request) {
+        Long userId=authUtil.getCurrentUserId();
+
+//        User owner = userRepository.findById(userId).orElseThrow(() ->
+//                new ResourceNotFound("User",userId.toString()));
+
+
+        // to avoid database call use hibernate reference
+        User owner = userRepository.getReferenceById(userId);
 
         Project project =Project.builder()
                 .name(request.name())
@@ -63,8 +69,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public List<ProjectSummaryResponse> getUserProjects(Long userId) {
-
+    public List<ProjectSummaryResponse> getUserProjects() {
+        Long userId=authUtil.getCurrentUserId();
         var projects=projectRepository.findAllAccessibleByUser(userId);
 
         return projectMapper.toListOfProjectSummaryResponses(projects);
@@ -72,17 +78,19 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public ProjectResponse getUserProjectsById(Long id, Long userId) {
-
-        Project project = getAccessibleProjectById(id,userId);
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getUserProjectsById(Long projectId) {
+        Long userId=authUtil.getCurrentUserId();
+        Project project = getAccessibleProjectById(projectId,userId);
 
         return   projectMapper.toProjectResponse(project);
     }
 
 
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
-
+    @PreAuthorize("@security.canEditProject(#id)")
+    public ProjectResponse updateProject(Long id, ProjectRequest request) {
+        Long userId=authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(id,userId);
         assert project != null;
         project .setName(request.name());
@@ -91,8 +99,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void softDelete(Long id, Long userId) {
-
+    public void softDelete(Long id) {
+        Long userId=authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(id,userId);
 
         project.setDeletedAt(Instant.now());

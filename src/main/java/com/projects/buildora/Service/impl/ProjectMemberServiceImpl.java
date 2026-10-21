@@ -11,6 +11,7 @@ import com.projects.buildora.mapper.ProjectMemberMapper;
 import com.projects.buildora.repository.ProjectMemberRepository;
 import com.projects.buildora.repository.ProjectRepository;
 import com.projects.buildora.repository.UserRepository;
+import com.projects.buildora.security.AuthUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,10 +30,11 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     ProjectRepository projectRepository;
     ProjectMemberMapper projectMemberMapper;
     UserRepository userRepository;
+    AuthUtil authUtil;
 
     @Override
-    public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-
+    public List<MemberResponse> getProjectMembers(Long projectId) {
+        Long userId = authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(projectId, userId);
 
        return projectMemberRepository.findByIdProjectId(projectId)
@@ -42,7 +44,8 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     }
 
     @Override
-    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
+    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
+        Long userId = authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(projectId, userId);
 
         User invitee = userRepository.findByUsername(request.username()).orElseThrow();
@@ -72,7 +75,8 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     }
 
     @Override
-    public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId, Long userId) {
+    public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId) {
+        Long userId = authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(projectId, userId);
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
@@ -88,7 +92,8 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
     }
 
     @Override
-    public void removeProjectMember(Long projectId, Long memberId, Long userId) {
+    public void removeProjectMember(Long projectId, Long memberId) {
+        Long userId = authUtil.getCurrentUserId();
         Project project = getAccessibleProjectById(projectId, userId);
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
@@ -98,7 +103,7 @@ public class ProjectMemberServiceImpl implements com.projects.buildora.Service.P
         projectMemberRepository.deleteById(projectMemberId);
     }
 
-    public Project getAccessibleProjectById(Long id, Long userId) {
+    public Project getAccessibleProjectById(Long id,Long userId) {
         return projectRepository.findAccessibleProjectById(id, userId).orElse(null);
     }
 }
