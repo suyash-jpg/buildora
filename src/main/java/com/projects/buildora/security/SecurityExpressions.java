@@ -1,6 +1,6 @@
 package com.projects.buildora.security;
 
-import com.projects.buildora.enums.ProjectRole;
+import com.projects.buildora.enums.ProjectPermission;
 import com.projects.buildora.repository.ProjectMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,21 +13,36 @@ public class SecurityExpressions {
     private final ProjectMemberRepository projectMemberRepository;
 
 
+    private final boolean hasPermission(Long projectId, ProjectPermission projectPermission) {
+        Long userId= authUtil.getCurrentUserId();
+        return projectMemberRepository.findRoleByProjectIdAndUserId(projectId,userId)
+                .map(role -> role.getPermission().contains(projectPermission))
+                .orElse(false);
+    }
+
+
     public boolean canViewProject(Long projectId) {
 
-        Long userId= authUtil.getCurrentUserId();
-
-       return projectMemberRepository.findRoleByProjectIdAndUserId(projectId,userId).map(role -> role.equals(ProjectRole.OWNER)
-               || role.equals(ProjectRole.EDITOR)
-               || role.equals(ProjectRole.VIEWER))
-               .orElse(false);
+        return hasPermission(projectId,ProjectPermission.VIEW);
     }
 
     public boolean canEditProject(Long projectId) {
-        Long userId= authUtil.getCurrentUserId();
 
-        return projectMemberRepository.findRoleByProjectIdAndUserId(projectId,userId).map(role -> role.equals(ProjectRole.OWNER)
-                        || role.equals(ProjectRole.EDITOR))
-                .orElse(false);
+        return hasPermission(projectId,ProjectPermission.EDIT);
+    }
+
+    public boolean canDeleteProject(Long projectId) {
+
+        return hasPermission(projectId,ProjectPermission.DELETE);
+    }
+
+    public boolean canViewMembers(Long projectId) {
+
+        return hasPermission(projectId,ProjectPermission.VIEW_MEMBERS);
+    }
+
+    public boolean canManageMembers(Long projectId) {
+
+        return hasPermission(projectId,ProjectPermission.MANAGE_MEMBERS);
     }
 }

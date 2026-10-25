@@ -20,3 +20,8 @@ spring:
 
   jwt:
     secret-key: ${JWT_SECRET_KEY}
+
+
+  razorpay:
+    key-id: ${RAZORPAY_KEY_ID}
+    key-secret: ${RAZORPAY_KEY_SECRET}

@@ -40,7 +40,5 @@ public class WebSecurityConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-
-
+    
 }
