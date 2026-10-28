@@ -212,11 +212,11 @@ A suggested monorepo layout:
 ```text
 buildora/
 │
-├── frontend/                         # Angular application
+├── frontend/                         
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── core/                 # Auth, interceptors, guards
-│   │   │   ├── shared/               # Reusable UI components
+│   │   │   ├── core/                
+│   │   │   ├── shared/               
 │   │   │   ├── features/
 │   │   │   │   ├── auth/
 │   │   │   │   ├── dashboard/
@@ -227,7 +227,7 @@ buildora/
 │   ├── package.json
 │   └── angular.json
 │
-├── backend/                          # Spring Boot application
+├── backend/                          
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/
