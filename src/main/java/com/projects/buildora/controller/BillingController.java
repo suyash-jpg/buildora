@@ -2,6 +2,7 @@ package com.projects.buildora.controller;
 
 import com.projects.buildora.Service.PlanService;
 import com.projects.buildora.Service.SubscriptionService;
+import com.projects.buildora.Service.PaymentProcessor;
 import com.projects.buildora.dto.Subcription.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class BillingController {
 
     PlanService planService;
     SubscriptionService subscriptionService;
+    PaymentProcessor paymentProcessor;
 
     @GetMapping("/api/plan")
     public ResponseEntity<List<PlanResponse>> getAllPlans() {
@@ -37,8 +39,7 @@ public class BillingController {
     public ResponseEntity<CheckoutResponse>createCheckoutResponse(
             @RequestBody CheckoutRequest request
     ){
-        Long userId=1L;
-        return  ResponseEntity.ok(subscriptionService.createCheckoutSessionUrl(userId,request));
+        return  ResponseEntity.ok(paymentProcessor.createCheckoutSessionUrl(request));
 
     }
 
@@ -46,7 +47,7 @@ public class BillingController {
     @PostMapping("/api/payments/portal")
     public ResponseEntity<PortalResponse>openCustomerPortal(){
         Long userId=1L;
-        return ResponseEntity.ok(subscriptionService.openCustomerPortal(userId));
+        return ResponseEntity.ok(paymentProcessor.openCustomerPortal(userId));
     }
 
 
